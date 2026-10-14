@@ -244,10 +244,19 @@ async def get_sample_files():
     samples_by_raga = {}
     for raga in RAGAS:
         samples_by_raga[raga] = []
+        # Check curated samples directory first
+        if os.path.exists("samples"):
+            for fname in os.listdir("samples"):
+                if raga.lower() in fname.lower():
+                    samples_by_raga[raga].append({
+                        "name": fname,
+                        "path": os.path.join("samples", fname),
+                        "folder": "samples"
+                    })
         # Check Test directory
         if os.path.exists("Test"):
             for fname in os.listdir("Test"):
-                if raga.lower() in fname.lower() or (raga == "Bhoopali" and "bhoop" in fname.lower()) or (raga == "Darbari" and "dkanada" in fname.lower()):
+                if (raga.lower() in fname.lower() or (raga == "Bhoopali" and "bhoop" in fname.lower()) or (raga == "Darbari" and "dkanada" in fname.lower())) and len(samples_by_raga[raga]) < 6:
                     samples_by_raga[raga].append({
                         "name": fname,
                         "path": os.path.join("Test", fname),

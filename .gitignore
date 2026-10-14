@@ -1,3 +1,8 @@
+# Large Raw Audio Datasets (Download links in README)
+Datasets/
+Test/
+csv files/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NaadaSetu: AI-Powered Hindustani Classical Raga Identification & MIR Studio using Deep 1D-CNNs, ML Ensembles, and 120-D MFCC Timbral Feature Extraction.">
+  <title>NaadaSetu AI - Hindustani Classical Raga Identification System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Glowing Background Orbs -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Main Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-emblem">
+          <span class="emblem-symbol">ॐ</span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">NaadaSetu AI</div>
+          <div class="brand-subtitle">The Bridge of Sound &bull; Raga AI System</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-tab-btn active" id="tab-btn-studio" data-target="panel-studio" role="tab" aria-selected="true">
+          <span class="tab-icon">🎵</span> Live Identification
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-benchmarks" data-target="panel-benchmarks" role="tab" aria-selected="false">
+          <span class="tab-icon">📊</span> Model Benchmarks
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-compendium" data-target="panel-compendium" role="tab" aria-selected="false">
+          <span class="tab-icon">📜</span> Raga Compendium
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-dataset" data-target="panel-dataset" role="tab" aria-selected="false">
+          <span class="tab-icon">📁</span> Dataset Explorer
+        </button>
+      </nav>
+
+      <div class="status-pill" id="system-status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text" id="status-label">Initializing...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    
+    <!-- PANEL 1: LIVE STUDIO -->
+    <section class="tab-panel active" id="panel-studio">
+      <div class="studio-hero">
+        <h1 class="hero-heading">Deep Learning Hindustani Raga Classifier</h1>
+        <p class="hero-description">
+          Analyze audio recordings in real time using 120-Dimensional MFCC delta-delta coefficients and a 2D Deep Convolutional Neural Network trained on 9 core Hindustani classical ragas.
+        </p>
+      </div>
+
+      <div class="studio-grid">
+        <!-- Input & Audio Control Column -->
+        <div class="studio-card input-card">
+          <div class="card-header">
+            <h2 class="card-title">1. Select or Upload Audio</h2>
+            <span class="badge badge-accent">30s Analysis Window</span>
+          </div>
+
+          <!-- Quick Dataset Sample Selector -->
+          <div class="selection-section">
+            <label class="section-label">Quick Test from Verified Dataset Samples:</label>
+            <div class="raga-pills-scroll" id="raga-pills-selector">
+              <!-- Dynamically populated raga buttons -->
+              <span class="loading-spinner">Loading sample ragas...</span>
+            </div>
+            
+            <div class="sample-tracks-container" id="sample-tracks-container" style="display:none;">
+              <label class="section-label sub-label" id="sample-tracks-title">Available Recordings:</label>
+              <div class="sample-chips" id="sample-chips-list"></div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="or-divider"><span>OR UPLOAD CUSTOM AUDIO</span></div>
+
+          <!-- Drag and Drop Upload Zone -->
+          <div class="upload-dropzone" id="upload-dropzone">
+            <input type="file" id="audio-file-input" accept=".wav,.mp3" class="hidden-file-input">
+            <div class="dropzone-content">
+              <div class="upload-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div class="dropzone-title">Drop audio file here or <span class="browse-link">browse</span></div>
+              <div class="dropzone-hint">Supports WAV, MP3 (Indian vocal or instrumental solo)</div>
+            </div>
+          </div>
+
+          <!-- Selected File Badge -->
+          <div class="current-selection-badge" id="current-selection-badge" style="display:none;">
+            <div class="badge-icon">🎶</div>
+            <div class="badge-info">
+              <div class="selected-filename" id="selected-filename-text">asavari01.wav</div>
+              <div class="selected-filesource" id="selected-filesource-text">Sample from Dataset</div>
+            </div>
+            <button class="btn-clear-selection" id="btn-clear-selection" title="Clear selection">✕</button>
+          </div>
+
+          <!-- Audio Player & Visualizer -->
+          <div class="audio-player-wrapper" id="audio-player-wrapper">
+            <audio id="audio-element" preload="metadata" crossorigin="anonymous"></audio>
+            
+            <div class="player-controls">
+              <button class="btn-play-pause" id="btn-play-pause" disabled title="Play Audio">
+                <span class="play-icon">▶</span>
+              </button>
+              
+              <div class="track-progress-container">
+                <div class="progress-bar-bg" id="progress-bar-bg">
+                  <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
+                <div class="player-timestamps">
+                  <span id="current-time">0:00</span>
+                  <span id="total-duration">0:30</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Glowing Real-time Frequency Waveform Visualizer -->
+            <div class="canvas-container">
+              <canvas id="waveform-canvas" width="460" height="70"></canvas>
+            </div>
+          </div>
+
+          <!-- Predict Action Button -->
+          <button class="btn-cta-predict" id="btn-run-prediction" disabled>
+            <span class="cta-icon">✨</span> Identify Classical Raga
+          </button>
+        </div>
+
+        <!-- Output & Predictions Column -->
+        <div class="studio-card results-card" id="results-card">
+          <div class="card-header">
+            <h2 class="card-title">2. Identification & Analysis</h2>
+            <span class="badge" id="result-status-badge">Awaiting Audio</span>
+          </div>
+
+          <!-- Initial Empty State -->
+          <div class="results-empty-state" id="results-empty-state">
+            <div class="empty-icon-mandala">🪷</div>
+            <div class="empty-title">Ready for Acoustic Analysis</div>
+            <p class="empty-desc">
+              Select one of the 9 demo Ragas above or upload an audio file to view AI classification, note structure, and timbral spectrograms.
+            </p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="results-loading-state" id="results-loading-state" style="display:none;">
+            <div class="pulse-equalizer">
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+            </div>
+            <div class="loading-title">Extracting 120-D MFCCs &amp; Deep Features...</div>
+            <div class="loading-subtitle">Computing fast Fourier transform and neural activations</div>
+          </div>
+
+          <!-- Populated Results Container -->
+          <div class="results-populated-content" id="results-populated-content" style="display:none;">
+            
+            <!-- Predicted Raga Banner -->
+            <div class="prediction-hero-banner">
+              <div class="prediction-glow-accent"></div>
+              <div class="prediction-meta-top">
+                <span class="hero-label">PREDICTED RAGA</span>
+                <span class="prediction-thaat-badge" id="predicted-thaat">Thaat: Kalyan</span>
+              </div>
+              <div class="prediction-name-large" id="predicted-raga-name">Raga Yaman</div>
+              <div class="prediction-confidence-wrapper">
+                <div class="confidence-circle-meter">
+                  <span class="confidence-number" id="confidence-score-val">94.8%</span>
+                  <span class="confidence-label">Confidence</span>
+                </div>
+                <div class="prediction-time-slot">
+                  <div class="time-slot-icon">🌅</div>
+                  <div class="time-slot-text">
+                    <span class="slot-title" id="predicted-prahar">1st Prahar of Night</span>
+                    <span class="slot-desc" id="predicted-rasa">Bhakti &amp; Shringara</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Classical Musicological Attributes Card -->
+            <div class="musicology-card">
+              <div class="musicology-header">Classical Swara Structure</div>
+              <div class="swara-grid">
+                <div class="swara-box">
+                  <span class="swara-label">Aaroh (Ascending)</span>
+                  <span class="swara-notes" id="swara-aaroh">S R G P D S'</span>
+                </div>
+                <div class="swara-box">
+                  <span class="swara-label">Avroh (Descending)</span>
+                  <span class="swara-notes" id="swara-avroh">S' D P G R S</span>
+                </div>
+                <div class="swara-box">
+                  <span class="swara-label">Vadi (King Note)</span>
+                  <span class="swara-notes accent-note" id="swara-vadi">Gandhar (G)</span>
+                </div>
+                <div class="swara-box">
+                  <span class="swara-label">Samvadi (Queen Note)</span>
+                  <span class="swara-notes accent-note" id="swara-samvadi">Dhaivat (D)</span>
+                </div>
+              </div>
+              <div class="pakad-strip">
+                <span class="pakad-title">Signature Phrase (Pakad):</span>
+                <span class="pakad-notes" id="swara-pakad">G R S D. S R G, P G D P G R S</span>
+              </div>
+              <div class="raga-narrative" id="raga-narrative-text"></div>
+            </div>
+
+            <!-- Probability Distribution Across All 9 Ragas -->
+            <div class="probability-section">
+              <div class="section-title-bar">
+                <span>9-Raga Multi-Class Probability Distribution</span>
+              </div>
+              <div class="prob-bars-list" id="prob-bars-list">
+                <!-- Dynamically rendered progress bars -->
+              </div>
+            </div>
+
+            <!-- Acoustic Visualizations: Mel Spectrogram & MFCCs -->
+            <div class="spectrogram-section">
+              <div class="section-title-bar">
+                <span>Extracted Acoustic Feature Maps</span>
+              </div>
+              <div class="spectrogram-tabs">
+                <button class="spec-tab-btn active" id="btn-tab-mel">Mel-Spectrogram</button>
+                <button class="spec-tab-btn" id="btn-tab-mfcc">MFCC Heatmap</button>
+              </div>
+              <div class="spectrogram-viewer">
+                <img id="img-mel-spec" src="" alt="Mel Spectrogram" class="spec-image active">
+                <img id="img-mfcc-map" src="" alt="MFCC Heatmap" class="spec-image">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 2: MODEL BENCHMARKS -->
+    <section class="tab-panel" id="panel-benchmarks">
+      <div class="panel-header">
+        <h2 class="panel-title">Model Architecture &amp; Empirical Benchmarks</h2>
+        <p class="panel-desc">Validation and test metrics evaluated against 94 unseen ground-truth recordings across 9 raga classes.</p>
+      </div>
+
+      <!-- Key Metrics Counter Cards -->
+      <div class="metrics-card-grid">
+        <div class="stat-card">
+          <div class="stat-number text-gradient" id="stat-test-acc">87.23%</div>
+          <div class="stat-label">Ensemble Test Accuracy</div>
+          <div class="stat-sub">Evaluated on 94 test tracks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-cnn-acc">82.98%</div>
+          <div class="stat-label">PyTorch Deep 1D CNN Accuracy</div>
+          <div class="stat-sub">Batch Normalization &amp; Dropout</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">120</div>
+          <div class="stat-label">Acoustic Feature Dimensions</div>
+          <div class="stat-sub">40 MFCC + 40 Δ + 40 ΔΔ</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">9</div>
+          <div class="stat-label">Recognized Raga Classes</div>
+          <div class="stat-sub">Hindustani Classical Canon</div>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix Section -->
+      <div class="benchmark-grid">
+        <div class="benchmark-box">
+          <div class="box-header">
+            <h3>Confusion Matrix Heatmap (Unseen Test Set)</h3>
+            <span class="badge">94 Test Audio Recordings</span>
+          </div>
+          <div class="cm-table-responsive">
+            <div id="confusion-matrix-container" class="cm-grid"></div>
+          </div>
+        </div>
+
+        <div class="benchmark-box">
+          <div class="box-header">
+            <h3>Per-Raga Precision &amp; Recall Breakdown</h3>
+          </div>
+          <div class="report-table-responsive">
+            <table class="benchmark-table" id="classification-report-table">
+              <thead>
+                <tr>
+                  <th>Raga</th>
+                  <th>Precision</th>
+                  <th>Recall</th>
+                  <th>F1-Score</th>
+                  <th>Test Samples</th>
+                </tr>
+              </thead>
+              <tbody id="report-table-body">
+                <!-- Dynamically filled -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 3: RAGA COMPENDIUM -->
+    <section class="tab-panel" id="panel-compendium">
+      <div class="panel-header">
+        <h2 class="panel-title">Hindustani Classical Raga Compendium</h2>
+        <p class="panel-desc">A musicological guide to the 9 primary ragas implemented in this identification framework.</p>
+      </div>
+
+      <div class="compendium-cards-grid" id="compendium-cards-container">
+        <!-- Dynamically rendered 9 raga detail cards -->
+      </div>
+    </section>
+
+    <!-- PANEL 4: DATASET EXPLORER -->
+    <section class="tab-panel" id="panel-dataset">
+      <div class="panel-header">
+        <h2 class="panel-title">Audio Dataset Composition</h2>
+        <p class="panel-desc">Distribution of the 169 training samples and 94 dedicated test recordings.</p>
+      </div>
+
+      <div class="dataset-stats-grid">
+        <div class="dataset-card">
+          <h3>Master Training Dataset (Datasets/)</h3>
+          <p class="dataset-sub">169 total audio files (44.1 kHz, 30s clips)</p>
+          <div class="dataset-distribution-list" id="train-dist-list"></div>
+        </div>
+
+        <div class="dataset-card">
+          <h3>Dedicated Test Dataset (Test/)</h3>
+          <p class="dataset-sub">94 total audio files across all 9 classes</p>
+          <div class="dataset-distribution-list" id="test-dist-list"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-copy">NaadaSetu AI &copy; 2026 &bull; Advanced Machine Learning for Indian Music Information Retrieval</div>
+      <div class="footer-tech">Librosa &bull; PyTorch &bull; Scikit-Learn &bull; FastAPI</div>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
